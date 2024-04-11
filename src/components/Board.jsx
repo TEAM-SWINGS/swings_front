@@ -1,37 +1,13 @@
 import React, {useState} from "react";
 import { Link } from "react-router-dom";
+import dummyData from "../dummyData";
 
 function Board(){
 
-    const [showActionsDropdown, setShowActionsDropdown] = useState(false);
-    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
-    const teamNames = [
-      "두산 베어스",
-      "롯데 자이언츠",
-      "삼성 라이온즈",
-      "KIA 타이거즈",
-      "키움 히어로즈",
-      "LG 트윈스",
-      "NC 다이노스",
-      "KT 위즈",
-      "한화 이글스"
-    ];
+  const [showActionsDropdown, setShowActionsDropdown] = useState(false);
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
-    const teamContents = [];
-    for (let i = 1; i <= 20; i++) {
-      const randomIndex = Math.floor(Math.random() * teamNames.length);
-      const randomTeam = teamNames[randomIndex];
-      
-      teamContents.push({
-        id: i,
-        title: randomTeam,
-        content: `내용 ${i}`,
-        author: `작성자 ${i}`,
-        views: Math.floor(Math.random() * 200) + 100, // 랜덤 조회수 생성 (100~299)
-        date: "2024-04-11" // 날짜는 일단 고정값으로 설정
-      });
-    }
 
     return(
         <>
@@ -155,15 +131,17 @@ function Board(){
                     </tr>
                     </thead>
                     <tbody>
-                        {teamContents.map(content => (
-                          <tr key={content.id} className="border-b dark:border-gray-700">
-                            <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{content.title}</td>
-                            <td className="px-4 py-3">{content.content}</td>
-                            <td className="px-4 py-3">{content.author}</td>
-                            <td className="px-4 py-3">{content.views}</td>
-                            <td className="px-4 py-3">{content.date}</td>
-                          </tr>
-                        ))}
+                      {dummyData.posts.map((post) => (
+                        <tr key={post.id} className="border-b dark:border-gray-700">
+                          <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {post.team}
+                          </td>
+                          <td className="px-4 py-3">{post.content}</td>
+                          <td className="px-4 py-3">{post.author}</td>
+                          <td className="px-4 py-3">{post.views}</td>
+                          <td className="px-4 py-3">{post.date}</td>
+                        </tr>
+                      ))}
                     </tbody>
                 </table>
               </Link>
