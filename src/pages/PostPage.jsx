@@ -1,15 +1,15 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import Board from "../components/Board";
+import Post from "../components/Post";
 
-function MainPage() {
+function PostPage() {
   return (
     <>
       <Header />
-      <Board />
+      <Post />
       <Footer />
     </>
   );
 }
 
-export default MainPage;
+export default PostPage;
