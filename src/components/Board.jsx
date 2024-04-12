@@ -33,7 +33,7 @@ function Board({ selectedTeam }) {
 
   // 선택된 팀에 해당하는 게시물 필터링
   const filteredPosts = selectedTeam
-    ? dummyData.posts.filter(post => post.team.includes(selectedTeam))
+    ? dummyData.posts.filter(post => post.teamField.includes(selectedTeam))
     : dummyData.posts;
 
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
@@ -102,7 +102,7 @@ function Board({ selectedTeam }) {
                     {currentPosts.map((post) => (
                       <tr key={post.id} className="border-b dark:border-gray-700">
                         <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                          {post.team}
+                          {post.teamField}
                         </td>
                         <td className="px-4 py-3">{post.content}</td>
                         <td className="px-4 py-3">{post.userId}</td>

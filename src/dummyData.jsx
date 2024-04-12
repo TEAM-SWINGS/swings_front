@@ -29,7 +29,7 @@ const dummyData = {
         id: index + 1,
         userId: "User " + (index + 1),
         boardId: (index % 10) + 1,
-        team: kboTeams[Math.floor(Math.random() * kboTeams.length)],
+        teamField: kboTeams[Math.floor(Math.random() * kboTeams.length)], // 수정된 부분
         title: "Post " + (index + 1),
         content: "Content of post " + (index + 1),
         views: Math.floor(Math.random() * 100),
@@ -50,5 +50,4 @@ const dummyData = {
     ]
   };
   
-  export default dummyData;
-  
+export default dummyData;

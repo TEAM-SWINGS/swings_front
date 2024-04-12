@@ -11,20 +11,22 @@ function Post(){
           <header class="mb-4 lg:mb-6 not-format">
               <address class="flex items-center mb-6 not-italic">
                   <div class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white">
-                        <a href="#" rel="author" class="text-xl font-bold text-gray-900 dark:text-white">작성자 이름</a>
-                        <p class="text-base text-gray-500 dark:text-gray-400"><time pubdate datetime="2022-02-08" title="February 8th, 2022">Feb. 8, 2022</time></p>
+                        <a href="#" rel="author" class="text-xl font-bold text-gray-900 dark:text-white mr-3">your nickname</a>
+                        <p class="text-base text-gray-500 dark:text-gray-400"><time pubdate datetime="2022-02-08" title="February 8th, 2022"> 2024.04.12</time></p>
                   </div>
               </address>
-              <h1 class="mb-4 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl dark:text-white">작성 글 제목</h1>
+              <h1 class="mb-8 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl dark:text-white">작성 글 제목</h1>
           </header>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
+          <div class="mb-10">
+            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
+            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
+            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
+            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
+            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, eos pariatur! Ab perferendis expedita laudantium nisi reiciendis eum inventore blanditiis optio, dignissimos provident fugit vitae, cum sapiente ea dicta tempora.</p>
+          </div>
           <section class="not-format">
               <div class="flex justify-between items-center mb-6">
-                  <h2 class="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">Discussion (20)</h2>
+                  <h2 class="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">댓글</h2>
               </div>
               <form class="mb-6">
                   <div class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
