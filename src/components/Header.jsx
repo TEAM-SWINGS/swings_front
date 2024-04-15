@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import dummyData from "../dummyData";
 
-function Header({ onSelectTeam }) { // 부모 컴포넌트로 선택된 팀 정보 전달
+function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택된 팀 정보 전달
   const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 구단 상태
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -21,20 +21,16 @@ function Header({ onSelectTeam }) { // 부모 컴포넌트로 선택된 팀 정�
   const handleToggleNav = () => {
     setIsNavOpen(!isNavOpen);
   };
-
-  // // 선택된 구단을 업데이트하는 함수
-  // const selectTeam = (team) => {
-  //   setSelectedTeam(team);
-  //   onSelectTeam(team); // 선택된 팀 정보를 부모 컴포넌트로 전달
-  // };
-
-  // onSelectTeam prop이 없을 경우를 대비하여 빈 함수를 설정
+  
+  const handleSelectAll = () => {
+    setSelectedTeam(""); // 선택된 팀을 빈 문자열("")로 설정
+    onSelectTeam(""); // 전체 팀 정보를 부모 컴포넌트로 전달
+  };
+  
+  // 선택된 구단을 업데이트하는 함수
   const handleSelectTeam = (team) => {
     setSelectedTeam(team);
-    // onSelectTeam 함수가 존재하는 경우에만 호출
-    if (typeof onSelectTeam === 'function') {
-      onSelectTeam(team);
-    }
+    onSelectTeam(team); // 선택된 팀 정보를 부모 컴포넌트로 전달
   };
 
   return (
@@ -88,7 +84,7 @@ function Header({ onSelectTeam }) { // 부모 컴포넌트로 선택된 팀 정�
               {/* 전체 보기 버튼 */}
               <li className="cursor-pointer hover:bg-gray-100 p-1 rounded-sm">
                 <a
-                  onClick={() => handleSelectTeam("")}
+                  onClick={handleSelectAll}
                   className={`font-bold hover:bg-gray-100 block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${selectedTeam === "" ? "text-primary-700" : "text-gray-700"}`}
                   aria-current={selectedTeam === "" ? "page" : undefined}
                 >
