@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 function Board({ selectedTeam }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [sortedPosts, setSortedPosts] = useState([...filteredPosts]);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
   const totalPages = Math.ceil(dummyData.posts.length / postsPerPage);
@@ -19,6 +20,29 @@ function Board({ selectedTeam }) {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  // 게시글 정렬 함수
+  const handleSortPosts = (sortBy) => {
+    let sortedArray = [...filteredPosts];
+    if (sortBy === "createdAt") {
+      sortedArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // 최신순 정렬
+    } else if (sortBy === "views") {
+      sortedArray.sort((a, b) => b.views - a.views); // 조회순 정렬
+    }
+    setSortedPosts(sortedArray);
+  };
+
+  // 게시글 필터링
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  // 게시글 정렬 클릭 핸들러
+  const handleSortClick = (sortBy) => {
+    handleSortPosts(sortBy);
+    toggleDropdown(); // 드롭다운 닫기
+  };
+
   
   // 페이지 변경
   const paginate = (pageNumber) => {
@@ -106,13 +130,21 @@ function Board({ selectedTeam }) {
                       {isDropdownOpen && (
                         <div id="filterDropdown" className="z-10 mt-1 absolute top-full left-0 w-full p-3 bg-white rounded-lg shadow dark:bg-gray-700">
                           <ul className="space-y-2 text-sm" aria-labelledby="filterDropdownButton">
-                            <li className="flex items-center">
-                                <input id="apple" type="checkbox" value="" className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-                                <label htmlFor="apple" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">최신순</label>
+                            <li className="flex items-center cursor-pointer" onClick={() => handleSortClick("createdAt")}>
+                              <span className="mr-2 text-gray-900 dark:text-gray-100">최신순</span>
+                              {sortBy === "createdAt" && (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5 text-primary-500">
+                                  <path fillRule="evenodd" d="M3 6a1 1 0 00-1 1v8a1 1 0 001 1h14a1 1 0 001-1V7a1 1 0 00-1-1H3zm5-3a1 1 0 00-1 1v2a1 1 0 102 0V4a1 1 0 00-1-1zm7 0a1 1 0 00-1 1v2a1 1 0 102 0V4a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                              )}
                             </li>
-                            <li className="flex items-center">
-                                <input id="fitbit" type="checkbox" value="" className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-                                <label htmlFor="fitbit" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">조회순</label>
+                            <li className="flex items-center cursor-pointer" onClick={() => handleSortClick("views")}>
+                              <span className="mr-2 text-gray-900 dark:text-gray-100">조회순</span>
+                              {sortBy === "views" && (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5 text-primary-500">
+                                  <path fillRule="evenodd" d="M3 6a1 1 0 00-1 1v8a1 1 0 001 1h14a1 1 0 001-1V7a1 1 0 00-1-1H3zm5-3a1 1 0 00-1 1v2a1 1 0 102 0V4a1 1 0 00-1-1zm7 0a1 1 0 00-1 1v2a1 1 0 102 0V4a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                              )}
                             </li>
                           </ul>
                         </div>

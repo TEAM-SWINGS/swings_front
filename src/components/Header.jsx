@@ -37,7 +37,7 @@ function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택
     <header>
       <nav className="bg-white border-gray-200 px-4 lg:px-6 dark:bg-gray-900">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center" onClick={() => window.location.reload()}>
             <img src="https://swings.s3.ap-northeast-2.amazonaws.com/title_swings.png" alt="Title" className="h-10" />
           </Link>
           <div className="flex items-center lg:order-2">
