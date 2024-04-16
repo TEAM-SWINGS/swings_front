@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import dummyData from "../dummyData";
 
 function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택된 팀 정보 전달
   const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 구단 상태
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  // 타이틀 클릭 시 이동 후 새로고침
+  const titleLinkClick = () => {
+    navigate("/");
+    window.location.reload();
+  };
 
   useEffect(() => {
     const storedLoggedIn = localStorage.getItem('isLoggedIn');
@@ -16,6 +23,7 @@ function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택
   const handleLogout = () => {
   localStorage.removeItem('isLoggedIn');
   setIsLoggedIn(false);
+  navigate("/");
   };
 
   const handleToggleNav = () => {
@@ -37,7 +45,7 @@ function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택
     <header>
       <nav className="bg-white border-gray-200 px-4 lg:px-6 dark:bg-gray-900">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-          <Link to="/" className="flex items-center" onClick={() => window.location.reload()}>
+          <Link to="/" className="flex items-center" onClick={titleLinkClick}>
             <img src="https://swings.s3.ap-northeast-2.amazonaws.com/title_swings.png" alt="Title" className="h-10" />
           </Link>
           <div className="flex items-center lg:order-2">

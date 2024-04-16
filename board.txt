@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 function Board({ selectedTeam }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [posts, setPosts] = useState(dummyData.posts);
+  const [posts, setPosts] = useState(dummyData.posts.filter(post => post.teamField.includes(selectedTeam)));
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
   const totalPages = Math.ceil(dummyData.posts.length / postsPerPage);
@@ -16,22 +16,23 @@ function Board({ selectedTeam }) {
     setIsLoggedIn(storedLoggedIn === 'true');
   }, []);
 
+  // 현재 페이지의 게시물 가져오기
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+  // 현재 페이지의 게시물
+  // setPosts(filteredPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage));
+      // 선택된 팀에 해당하는 게시물 필터링
+  // const filteredPosts = selectedTeam
+  // ? dummyData.posts.filter(post => post.teamField.includes(selectedTeam))
+  // : dummyData.posts;
+
+  // const sortedPosts = filteredPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage)
+
   // 게시글 토글
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
-  
-    // 현재 페이지의 게시물 가져오기
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  
-    // 선택된 팀에 해당하는 게시물 필터링
-    const filteredPosts = selectedTeam
-      ? dummyData.posts.filter(post => post.teamField.includes(selectedTeam))
-      : dummyData.posts;
-  
-    // 현재 페이지의 게시물
-    const currentPosts = filteredPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
   // 게시글 정렬 함수
   const filterPosts = (criteria) => {
@@ -53,7 +54,7 @@ function Board({ selectedTeam }) {
     }
     // 정렬된 게시글로 상태 업데이트
     setPosts(sortedPosts);
-    console.log(sortedPosts);
+
     // 드롭다운 닫기
     setIsDropdownOpen(false);
   };
@@ -79,7 +80,7 @@ function Board({ selectedTeam }) {
 
   // 시작 페이지와 끝 페이지 계산
   const pagesPerPage = 10; // Number of pages to show in pagination
-  const lastPage = Math.ceil(filteredPosts.length / postsPerPage);
+  const lastPage = Math.ceil(posts.length / postsPerPage);
   const startPage = Math.floor((currentPage - 1) / pagesPerPage) * pagesPerPage + 1;
   const endPage = Math.min(startPage + pagesPerPage - 1, totalPages);
 
@@ -161,7 +162,7 @@ function Board({ selectedTeam }) {
                   </thead>
                   <tbody>
                     {/* 현재 페이지의 게시물 렌더링 */}
-                    {currentPosts.map((post) => (
+                    {posts.map((post) => (
                       <tr key={post.id} className="border-b dark:border-gray-700">
                         <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {post.teamField}
