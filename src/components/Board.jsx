@@ -1,14 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import dummyData from "../dummyData";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 function Board({ selectedTeam }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  // const sort = searchParams.get('sort');
+  // const [page, setPage] = useState(1);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [posts, setPosts] = useState(dummyData.posts);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
   const totalPages = Math.ceil(dummyData.posts.length / postsPerPage);
+
+
+  const changeUrlParams = (key, value) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set(key, value);
+    setSearchParams(newSearchParams);
+  }
   
   // 로그인 유무
   useEffect(() => {
@@ -21,39 +31,54 @@ function Board({ selectedTeam }) {
     setIsDropdownOpen(!isDropdownOpen);
   };
   
-    // 현재 페이지의 게시물 가져오기
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  // 현재 페이지의 게시물 가져오기
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+  // const fetchData = async () => {
+  //   const newSearchParams = new URLSearchParams();
+  //   newSearchParams.set('sort', sort);
+  //   const response = await fetch(`https://api.com/posts?${newSearchParams.toString()}`, {
+  //     method: 'GET',
+      
+  //   });
+  //   const data = await response.json();
+  //   const list = data.list;
+  //   setPosts(list);
+  // }
+
+
+  // 선택된 팀에 해당하는 게시물 필터링
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, [searchParams]);
   
-    // 선택된 팀에 해당하는 게시물 필터링
-    const filteredPosts = selectedTeam
-      ? dummyData.posts.filter(post => post.teamField.includes(selectedTeam))
-      : dummyData.posts;
-  
-    // 현재 페이지의 게시물
-    const currentPosts = filteredPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+  useEffect(() => {
+    const allPosts = dummyData.posts;
+    if (selectedTeam) {
+      setPosts(allPosts.filter(post => post.teamField.includes(selectedTeam)))
+    } else {
+      setPosts(allPosts);
+    }
+  }, [selectedTeam]);
 
   // 게시글 정렬 함수
   const filterPosts = (criteria) => {
-    // 선택된 팀에 해당하는 게시물 필터링
-    const filteredPosts = selectedTeam
-    ? dummyData.posts.filter(post => post.teamField.includes(selectedTeam))
-    : dummyData.posts;
-    
+    changeUrlParams('sort', criteria);
     let sortedPosts;
     // 조회수 내림차순 정렬
     if (criteria === 'views') {
-      sortedPosts = [...filteredPosts].sort((a, b) => b.views - a.views);
+      sortedPosts = [...posts].sort((a, b) => b.views - a.views);
       // 작성일자 내림차순 정렬
     } else if (criteria === 'createdAt') {
-      sortedPosts = [...filteredPosts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      sortedPosts = [...posts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       // 기본값은 원래의 순서 유지
     } else {
-      sortedPosts = [...filteredPosts];
+      sortedPosts = [...posts];
     }
     // 정렬된 게시글로 상태 업데이트
     setPosts(sortedPosts);
-    console.log(sortedPosts);
     // 드롭다운 닫기
     setIsDropdownOpen(false);
   };
@@ -79,7 +104,7 @@ function Board({ selectedTeam }) {
 
   // 시작 페이지와 끝 페이지 계산
   const pagesPerPage = 10; // Number of pages to show in pagination
-  const lastPage = Math.ceil(filteredPosts.length / postsPerPage);
+  const lastPage = Math.ceil(posts.length / postsPerPage);
   const startPage = Math.floor((currentPage - 1) / pagesPerPage) * pagesPerPage + 1;
   const endPage = Math.min(startPage + pagesPerPage - 1, totalPages);
 
@@ -102,7 +127,12 @@ function Board({ selectedTeam }) {
                             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                           </svg>
                         </div>
-                        <input type="text" id="simple-search" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search" required="" />
+                        <input type="search" id="simple-search" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search" required="" />
+                        <button type="submit" class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-gray-700 rounded-e-lg border border-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+                          <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                          </svg>
+                        </button>
                       </div>
                     </form>
                   </div>
@@ -161,7 +191,7 @@ function Board({ selectedTeam }) {
                   </thead>
                   <tbody>
                     {/* 현재 페이지의 게시물 렌더링 */}
-                    {currentPosts.map((post) => (
+                    {posts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage).map((post) => (
                       <tr key={post.id} className="border-b dark:border-gray-700">
                         <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                           {post.teamField}

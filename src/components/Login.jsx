@@ -8,11 +8,9 @@ function Login(props) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log(email);
-    console.log(password);
 
     try {
-      const response = await fetch("http://192.168.240.41:8080/user/login", {
+      const response = await fetch("http://localhost:8080/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
