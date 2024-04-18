@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from "react";
-import dummyData from "../dummyData";
 import { Link, useSearchParams } from "react-router-dom";
 
 function Board({ selectedTeam }) {
@@ -8,10 +7,10 @@ function Board({ selectedTeam }) {
   // const [page, setPage] = useState(1);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [posts, setPosts] = useState(dummyData.posts);
+  const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
-  const totalPages = Math.ceil(dummyData.posts.length / postsPerPage);
+  const [totalPages, setTotalPages] = useState(0);
 
 
   const changeUrlParams = (key, value) => {
@@ -31,37 +30,43 @@ function Board({ selectedTeam }) {
     setIsDropdownOpen(!isDropdownOpen);
   };
   
-  // 현재 페이지의 게시물 가져오기
+  // 선택된 페이지에 해당하는 게시물 추출
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
 
-  // const fetchData = async () => {
-  //   const newSearchParams = new URLSearchParams();
-  //   newSearchParams.set('sort', sort);
-  //   const response = await fetch(`https://api.com/posts?${newSearchParams.toString()}`, {
-  //     method: 'GET',
-      
-  //   });
-  //   const data = await response.json();
-  //   const list = data.list;
-  //   setPosts(list);
-  // }
-
-
-  // 선택된 팀에 해당하는 게시물 필터링
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [searchParams]);
-  
   useEffect(() => {
-    const allPosts = dummyData.posts;
-    if (selectedTeam) {
-      setPosts(allPosts.filter(post => post.teamField.includes(selectedTeam)))
-    } else {
-      setPosts(allPosts);
-    }
+    setTotalPages(Math.ceil(posts.length / postsPerPage));
+  }, [posts]);
+
+  useEffect(() => {
+    fetchPosts(selectedTeam);
   }, [selectedTeam]);
+
+  // 서버에서 게시글 가져오기
+  const fetchPosts = async (team) => {
+    let url = 'http://192.168.240.43:8080/api/posts';
+    if (team) {
+      url += `/${encodeURIComponent(team)}`;
+    }
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data);
+      } else {
+        throw new Error('게시글을 가져오는 데 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
+      // 오류 처리
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(selectedTeam);
+  }, [selectedTeam]);
+
 
   // 게시글 정렬 함수
   const filterPosts = (criteria) => {
@@ -83,19 +88,30 @@ function Board({ selectedTeam }) {
     setIsDropdownOpen(false);
   };
   
-  // 페이지 변경
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+  // // 페이지 변경
+  // const paginate = (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  // };
 
-  // 다음 페이지로 이동
+  // // 다음 페이지로 이동
+  // const nextPage = () => {
+  //   if (currentPage < totalPages) {
+  //     setCurrentPage(currentPage + 1);
+  //   }
+  // };
+
+  // // 이전 페이지로 이동
+  // const prevPage = () => {
+  //   if (currentPage > 1) {
+  //     setCurrentPage(currentPage - 1);
+  //   }
+  // };
   const nextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
-  // 이전 페이지로 이동
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
@@ -176,57 +192,55 @@ function Board({ selectedTeam }) {
                 </>
               ) : null}
             </div>
-            {/* 게시물 목록 */}
+            {/* 게시판 헤더 및 목록 */}
             <div className="overflow-x-auto">
-              <Link to="/postPage">
-                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                      <th scope="col" className="px-4 py-3">팀 제목</th>
-                      <th scope="col" className="px-4 py-3">내용</th>
-                      <th scope="col" className="px-4 py-3">작성자</th>
-                      <th scope="col" className="px-4 py-3">조회수</th>
-                      <th scope="col" className="px-4 py-3">날짜</th>
+              <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" className="px-4 py-3">팀 제목</th>
+                    <th scope="col" className="px-4 py-3">제목</th>
+                    <th scope="col" className="px-4 py-3">작성자</th>
+                    <th scope="col" className="px-4 py-3">조회수</th>
+                    <th scope="col" className="px-4 py-3">날짜</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* 선택된 팀의 게시물 렌더링 */}
+                  {currentPosts.map((post) => (
+                    <tr key={post.id} className="border-b dark:border-gray-700">
+                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {post.teamfield}
+                      </td>
+                      <td className="px-4 py-3">{post.title}</td>
+                      <td className="px-4 py-3">{post.nickname}</td>
+                      <td className="px-4 py-3">{post.views}</td>
+                      <td className="px-4 py-3">{post.createdate}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {/* 현재 페이지의 게시물 렌더링 */}
-                    {posts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage).map((post) => (
-                      <tr key={post.id} className="border-b dark:border-gray-700">
-                        <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                          {post.teamField}
-                        </td>
-                        <td className="px-4 py-3">{post.content}</td>
-                        <td className="px-4 py-3">{post.userId}</td>
-                        <td className="px-4 py-3">{post.views}</td>
-                        <td className="px-4 py-3">{post.createdAt}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Link>
+                  ))}
+                </tbody>
+              </table>
             </div>
             {/* 페이지네이션 */}
             <nav className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
               <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                Showing <span className="font-semibold text-gray-900 dark:text-white">{indexOfFirstPost + 1}-{indexOfLastPost > dummyData.posts.length ? dummyData.posts.length : indexOfLastPost}</span> of <span className="font-semibold text-gray-900 dark:text-white">{dummyData.posts.length}</span>
+                Showing <span className="font-semibold text-gray-900 dark:text-white">{(currentPage - 1) * postsPerPage + 1}-{Math.min(currentPage * postsPerPage, posts.length)}</span> of <span className="font-semibold text-gray-900 dark:text-white">{posts.length}</span>
               </span>
               <div className="flex items-center">
-                {/* Previous Button */}
+                {/* 이전 페이지 버튼 */}
                 <button onClick={prevPage} disabled={currentPage === 1} className="mr-2 px-3 py-1 rounded-md bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400 disabled:opacity-50">
                   &lt;
                 </button>
                 {/* 페이지 버튼 */}
-                {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((number) => (
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
                   <button
                     key={number}
-                    onClick={() => paginate(number)}
+                    onClick={() => setCurrentPage(number)}
                     className={`mr-2 px-3 py-1 rounded-md bg-white text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 ${currentPage === number ? 'font-bold' : ''}`}
                   >
                     {number}
                   </button>
                 ))}
-                {/* Next Button */}
+                {/* 다음 페이지 버튼 */}
                 <button onClick={nextPage} disabled={currentPage === totalPages} className="px-3 py-1 rounded-md bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400 disabled:opacity-50">
                   &gt;
                 </button>

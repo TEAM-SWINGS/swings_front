@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import dummyData from "../dummyData";
 
-function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택된 팀 정보 전달
+function Header({ onSelectTeam}) {
+
+  // 부모 컴포넌트로 선택된 팀 정보 전달
   const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 구단 상태
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem("isLoggedIn"));
   const navigate = useNavigate();
 
   // 타이틀 클릭 시 이동 후 새로고침
@@ -14,10 +15,29 @@ function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택
     window.location.reload();
   };
 
-  useEffect(() => {
-    const storedLoggedIn = localStorage.getItem('isLoggedIn');
-    setIsLoggedIn(storedLoggedIn === 'true');
-  }, []); // 빈 배열을 넘겨주면 컴포넌트가 마운트될 때 한 번만 실행
+  // 전체 구단 핸들러
+  const handleSelectAll = async () => {
+    try {
+      const response = await fetch(`http://192.168.240.43:8080/api/posts`);
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedTeam(""); // 선택된 팀 정보 초기화
+        onSelectTeam(""); // 선택된 팀 정보를 부모 컴포넌트로 전달
+      } else {
+        throw new Error('게시글을 가져오는 데 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
+      // 오류 처리
+    }
+  };
+
+  
+  // 팀 선택 핸들러
+  const handleSelectTeam = (team) => {
+    setSelectedTeam(team);
+    onSelectTeam(team); // 선택된 팀 정보를 부모 컴포넌트로 전달
+  };
 
   // 로그아웃 핸들러
   const handleLogout = () => {
@@ -30,17 +50,6 @@ function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택
     setIsNavOpen(!isNavOpen);
   };
   
-  const handleSelectAll = () => {
-    setSelectedTeam(""); // 선택된 팀을 빈 문자열("")로 설정
-    onSelectTeam(""); // 전체 팀 정보를 부모 컴포넌트로 전달
-  };
-  
-  // 선택된 구단을 업데이트하는 함수
-  const handleSelectTeam = (team) => {
-    setSelectedTeam(team);
-    onSelectTeam(team); // 선택된 팀 정보를 부모 컴포넌트로 전달
-  };
-
   return (
     <header>
       <nav className="bg-white border-gray-200 px-4 lg:px-6 dark:bg-gray-900">
@@ -49,7 +58,6 @@ function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택
             <img src="https://swings.s3.ap-northeast-2.amazonaws.com/title_swings.png" alt="Title" className="h-10" />
           </Link>
           <div className="flex items-center lg:order-2">
-
             {isLoggedIn ? (
               <Link
                 className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
@@ -88,6 +96,7 @@ function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택
             </button>
           </div>
           <div className={`w-full mt-3 md:block md:w-auto ${isNavOpen ? '' : 'hidden'}`} id="navbar-default">
+            {/* 팀 선택 리스트 */}
             <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
               {/* 전체 보기 버튼 */}
               <li className="cursor-pointer hover:bg-gray-100 p-1 rounded-sm">
@@ -99,20 +108,14 @@ function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택
                   전체
                 </a>
               </li>
-              {/* 구단별 버튼 */}
-              {dummyData.posts.reduce((acc, post) => {
-                const teamName = post.teamField.split(" ")[0];
-                if (!acc.includes(teamName)) {
-                  acc.push(teamName);
-                }
-                return acc;
-              }, []).map((team) => (
-                <li key={team} className="cursor-pointer hover:bg-gray-100 p-1 rounded-sm">
+              {/* 구단별 게시글 보기 */}
+              {["KIA 타이거즈", "두산 베어스", "롯데 자이언츠", "삼성 라이온즈", "한화 이글스", "NC 다이노스", "키움 히어로즈", "KT 위즈", "LG 트윈스", "SSG 랜더스"].map((teamName) => (
+                <li key={teamName} className="cursor-pointer hover:bg-gray-100 p-1 rounded-sm">
                   <a
-                    onClick={() => handleSelectTeam(team)}
-                    className={`block py-2 px-3 text-gray-900 rounded md:hover:bg-transparent md:border-0 md:p-0 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${selectedTeam === team ? "text-primary-700" : "text-gray-700"}`}
+                    onClick={() => handleSelectTeam(teamName)}
+                    className={`block py-2 px-3 text-gray-900 rounded md:hover:bg-transparent md:border-0 md:p-0 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${selectedTeam === teamName ? "text-primary-700" : "text-gray-700"}`}
                   >
-                    {team}
+                    {teamName}
                   </a>
                 </li>
               ))}
@@ -123,5 +126,4 @@ function Header({ onSelectTeam = () => {}  }) { // 부모 컴포넌트로 선택
     </header>
   );
 }
-
 export default Header;

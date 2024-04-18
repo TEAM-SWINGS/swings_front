@@ -1,7 +1,7 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Board from "../components/Board";
-import { useState } from "react";
+import React, { useState } from "react";
 
 function MainPage() {
   const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 팀 상태
