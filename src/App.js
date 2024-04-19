@@ -15,7 +15,7 @@ function App() {
         <Route path='/' element={<MainPage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/signup' element={<SignupPage />} />
-        <Route path='/postpage' element={<PostPage />} />
+        <Route path='/postpage/:id' element={<PostPage />} />
         <Route path='/postformpage' element={<PostFormPage />} />
       </Routes>
     </Router>

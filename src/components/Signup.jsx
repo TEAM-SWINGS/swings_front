@@ -1,7 +1,32 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Signup(){
+
+    const navigate = useNavigate();
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+
+        try {
+            const response = await fetch('http://192.168.240.43:8080/user/save', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                navigate('/login');
+            } else {
+                const errorMessage = await response.text();
+                // console.error('Error saving form data:', errorMessage);
+                navigate('/login');
+            }
+        } catch (error) {
+            // console.error('Network error:', error.message);
+        }
+    }
 
     return(
         <>
@@ -15,7 +40,7 @@ function Signup(){
               <h1 class="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                   Sign up
               </h1>
-              <form class="space-y-4 md:space-y-6" action="http://192.168.240.43:8080/user/save" method="post">
+              <form class="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
                   <div>
                       <label for="nickname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your nickname</label>
                       <input type="text" name="nickname" id="nickname" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="My Nick Name" required="" />

@@ -108,17 +108,20 @@ function Header({ onSelectTeam}) {
                   전체
                 </a>
               </li>
-              {/* 구단별 게시글 보기 */}
-              {["KIA 타이거즈", "두산 베어스", "롯데 자이언츠", "삼성 라이온즈", "한화 이글스", "NC 다이노스", "키움 히어로즈", "KT 위즈", "LG 트윈스", "SSG 랜더스"].map((teamName) => (
-                <li key={teamName} className="cursor-pointer hover:bg-gray-100 p-1 rounded-sm">
-                  <a
-                    onClick={() => handleSelectTeam(teamName)}
-                    className={`block py-2 px-3 text-gray-900 rounded md:hover:bg-transparent md:border-0 md:p-0 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${selectedTeam === teamName ? "text-primary-700" : "text-gray-700"}`}
-                  >
-                    {teamName}
-                  </a>
-                </li>
-              ))}
+              {/* 구단명 자르기 */}
+              {["KIA 타이거즈", "두산 베어스", "롯데 자이언츠", "삼성 라이온즈", "한화 이글스", "NC 다이노스", "키움 히어로즈", "KT 위즈", "LG 트윈스", "SSG 랜더스"].map((teamName) => {
+                const shortTeamName = teamName.substring(0, teamName.indexOf(' '));
+                return (
+                  <li key={shortTeamName} className="cursor-pointer hover:bg-gray-100 p-1 rounded-sm">
+                      <a
+                          onClick={() => handleSelectTeam(shortTeamName)}
+                          className={`block py-2 px-3 text-gray-900 rounded md:hover:bg-transparent md:border-0 md:p-0 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${selectedTeam === shortTeamName ? "text-primary-700" : "text-gray-700"}`}
+                      >
+                          {shortTeamName}
+                      </a>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>

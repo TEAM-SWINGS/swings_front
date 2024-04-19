@@ -1,10 +1,10 @@
 import React, { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Editor } from "@toast-ui/react-editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 
 function PostForm({userID }) {
-  console.log(userID)
+  const navigate = useNavigate();
   const editorRef = useRef();
 
   const [formData, setFormData] = useState({
@@ -35,6 +35,7 @@ function PostForm({userID }) {
 
       if (response.ok) {
         console.log("Post created successfully!");
+        navigate("/");
       } else {
         console.error("Failed to create post.");
       }
