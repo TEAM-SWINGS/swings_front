@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-function Board({ selectedTeam }) {
+function Board({ }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -9,6 +9,8 @@ function Board({ selectedTeam }) {
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
   const [totalPages, setTotalPages] = useState(0); // 총 페이지 수
   const postsPerPage = 10; // 페이지 당 게시물 수
+  const [isNavOpen, setIsNavOpen] = useState(false);
+
 
   const changeUrlParams = (key, value) => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -112,6 +114,35 @@ function Board({ selectedTeam }) {
   const startPage = Math.floor((currentPage - 1) / pagesPerPage) * pagesPerPage + 1;
   const endPage = Math.min(startPage + pagesPerPage - 1, totalPages);
 
+      // 부모 컴포넌트로 선택된 팀 정보 전달
+      const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 구단 상태
+      // 전체 구단 핸들러
+      const handleSelectAll = async () => {
+        try {
+          const response = await fetch(`http://192.168.240.43:8080/api/posts`);
+          if (response.ok) {
+            const data = await response.json();
+            setSelectedTeam(""); // 선택된 팀 정보 초기화
+          } else {
+            throw new Error('게시글을 가져오는 데 실패했습니다.');
+          }
+        } catch (error) {
+          console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
+          // 오류 처리
+        }
+      };
+    
+      
+      // 팀 선택 핸들러
+      const handleSelectTeam = (team) => {
+        setSelectedTeam(team);
+      };
+      
+      const handleToggleNav = () => {
+        setIsNavOpen(!isNavOpen);
+      };
+      
+
   return (
     <>
       <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
@@ -119,6 +150,58 @@ function Board({ selectedTeam }) {
           <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             {/* 게시판 헤더 */}
             <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
+              <>
+              {/* 반응형 네비바 버튼 */}
+            <button
+              type="button"
+              className="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+              aria-expanded={isNavOpen ? "true" : "false"}
+              onClick={handleToggleNav}
+              >
+              <svg
+                className="w-6 h-6"
+                aria-hidden="true"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+                >
+                <path
+                  fillRule="evenodd"
+                  d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                  clipRule="evenodd"
+                  ></path>
+              </svg>
+            </button>
+          <div className={`w-full mt-3 md:block md:w-auto ${isNavOpen ? '' : 'hidden'}`} id="navbar-default">
+            {/* 팀 선택 리스트 */}
+            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+              {/* 전체 보기 버튼 */}
+              <li className="cursor-pointer hover:bg-gray-100 p-1 rounded-sm">
+                <a
+                  onClick={handleSelectAll}
+                  className={`font-bold hover:bg-gray-100 block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:p-0 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${selectedTeam === "" ? "text-primary-700" : "text-gray-700"}`}
+                  aria-current={selectedTeam === "" ? "page" : undefined}
+                >
+                  전체
+                </a>
+              </li>
+              {/* 구단명 자르기 */}
+              {["KIA 타이거즈", "두산 베어스", "롯데 자이언츠", "삼성 라이온즈", "한화 이글스", "NC 다이노스", "키움 히어로즈", "KT 위즈", "LG 트윈스", "SSG 랜더스"].map((teamName) => {
+                const shortTeamName = teamName.substring(0, teamName.indexOf(' '));
+                return (
+                  <li key={shortTeamName} className="cursor-pointer hover:bg-gray-100 p-1 rounded-sm">
+                      <a
+                          onClick={() => handleSelectTeam(shortTeamName)}
+                          className={`block py-2 px-3 text-gray-900 rounded md:hover:bg-transparent md:border-0 md:p-0 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${selectedTeam === shortTeamName ? "text-primary-700" : "text-gray-700"}`}
+                      >
+                          {shortTeamName}
+                      </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+              </>
               {isLoggedIn ? (
                 <>
                   {/* 검색 폼 */}
