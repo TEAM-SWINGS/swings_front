@@ -20,7 +20,7 @@ function PostForm({userID }) {
     const markdownContent = editorInstance.getMarkdown();
     
     try {
-      const response = await fetch("http://192.168.240.43:8080/api/posts/create", {
+      const response = await fetch("http://localhost:8080/api/posts/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
