@@ -30,10 +30,10 @@ function Board({ }) {
   };
 
   // 서버에서 현재 페이지에 해당하는 게시물 가져오기
-  const fetchPosts = async (page) => {
+  const fetchPosts = async () => {
     try {
       const response = await fetch(
-        `http://192.168.240.43:8080/api/posts?page=${page}&size=${postsPerPage}`
+        `http://192.168.240.43:8080/api/posts?page=${currentPage -1}&size=${postsPerPage}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -114,33 +114,50 @@ function Board({ }) {
   const startPage = Math.floor((currentPage - 1) / pagesPerPage) * pagesPerPage + 1;
   const endPage = Math.min(startPage + pagesPerPage - 1, totalPages);
 
-      // 부모 컴포넌트로 선택된 팀 정보 전달
-      const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 구단 상태
-      // 전체 구단 핸들러
-      const handleSelectAll = async () => {
-        try {
-          const response = await fetch(`http://192.168.240.43:8080/api/posts`);
-          if (response.ok) {
-            const data = await response.json();
-            setSelectedTeam(""); // 선택된 팀 정보 초기화
-          } else {
-            throw new Error('게시글을 가져오는 데 실패했습니다.');
-          }
-        } catch (error) {
-          console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
-          // 오류 처리
-        }
-      };
-    
-      
-      // 팀 선택 핸들러
-      const handleSelectTeam = (team) => {
+  // // 부모 컴포넌트로 선택된 팀 정보 전달
+  const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 구단 상태
+
+  // 전체 보기 핸들러
+  const handleSelectAll = async () => {
+    try {
+      const response = await fetch(`http://192.168.240.43:8080/api/posts`);
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data.content);
+        setTotalPages(data.totalPages);
+        setSelectedTeam(""); // 선택된 팀 정보 초기화
+      } else {
+        throw new Error('게시글을 가져오는 데 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
+      // 오류 처리
+    }
+  };
+
+  
+  // 팀 선택 핸들러
+  const handleSelectTeam = async (team) => {
+    try {
+      const response = await fetch(`http://192.168.240.43:8080/api/posts?team=${team}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data.content);
+        setTotalPages(data.totalPages);
         setSelectedTeam(team);
-      };
-      
-      const handleToggleNav = () => {
-        setIsNavOpen(!isNavOpen);
-      };
+      } else {
+        throw new Error('게시글을 가져오는 데 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
+      // 오류 처리
+    }
+  };
+
+  
+  const handleToggleNav = () => {
+    setIsNavOpen(!isNavOpen);
+  };
       
 
   return (
@@ -294,55 +311,54 @@ function Board({ }) {
               </table>
             </div>
             {/* 페이지네이션 */}
-<div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
-    <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-        Showing
-        <span className="font-semibold text-gray-900 dark:text-white">{(currentPage - 1) * postsPerPage + 1}-{Math.min(currentPage * postsPerPage, posts.length)}</span>
-        of
-        <span className="font-semibold text-gray-900 dark:text-white">{posts.length}</span>
-    </span>
-    <ul className="inline-flex items-stretch -space-x-px">
-        <li>
-            <button
-                onClick={prevPage}
-                disabled={currentPage === 1}
-                className="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-                <span className="sr-only">Previous</span>
-                <svg className="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-            </button>
-        </li>
-        {Array.from({ length: endPage - startPage + 1 }, (_, index) => (
-            <li key={startPage + index}>
-                <button
-                    onClick={() => setCurrentPage(startPage + index)}
-                    className={`flex items-center justify-center text-sm py-2 px-3 leading-tight ${
-                        startPage + index === currentPage
-                            ? 'text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white'
-                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
-                    }`}
-                >
-                    {startPage + index}
-                </button>
-            </li>
-        ))}
-        <li>
-            <button
-                onClick={nextPage}
-                disabled={currentPage === totalPages}
-                className="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-                <span className="sr-only">Next</span>
-                <svg className="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-            </button>
-        </li>
-    </ul>
-</div>
-
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
+                <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                    Showing
+                    <span className="font-semibold text-gray-900 dark:text-white">{(currentPage - 1) * postsPerPage + 1}-{Math.min(currentPage * postsPerPage, posts.length)}</span>
+                    of
+                    <span className="font-semibold text-gray-900 dark:text-white">{totalPages}</span>
+                </span>
+                <ul className="inline-flex items-stretch -space-x-px">
+                    <li>
+                        <button
+                            onClick={prevPage}
+                            disabled={currentPage === 1}
+                            className="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                        >
+                            <span className="sr-only">Previous</span>
+                            <svg className="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+                    </li>
+                    {Array.from({ length: endPage - startPage + 1 }, (_, index) => (
+                        <li key={startPage + index}>
+                            <button
+                                onClick={() => setCurrentPage(startPage + index)}
+                                className={`flex items-center justify-center text-sm py-2 px-3 leading-tight ${
+                                    startPage + index === currentPage
+                                        ? 'text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white'
+                                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+                                }`}
+                            >
+                                {startPage + index}
+                            </button>
+                        </li>
+                    ))}
+                    <li>
+                        <button
+                            onClick={nextPage}
+                            disabled={currentPage === totalPages}
+                            className="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                        >
+                            <span className="sr-only">Next</span>
+                            <svg className="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+                    </li>
+                </ul>
+            </div>
           </div>
         </div>
       </section>
