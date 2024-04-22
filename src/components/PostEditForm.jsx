@@ -1,9 +1,11 @@
 import React, { useRef, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Editor } from "@toast-ui/react-editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 
-function PostForm({userID }) {
+function PostEditForm({ existingContent }) {
+  const params = useParams();
+  const id = params.id;
   const navigate = useNavigate();
   const editorRef = useRef();
 
@@ -20,8 +22,8 @@ function PostForm({userID }) {
     const markdownContent = editorInstance.getMarkdown();
     
     try {
-      const response = await fetch("http://192.168.240.43:8080/api/posts/create", {
-        method: "POST",
+      const response = await fetch(`http://192.168.240.43:8080/api/posts/edit/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -29,18 +31,18 @@ function PostForm({userID }) {
           title: formData.title,
           content: markdownContent,
           teamfield: formData.teamfield,
-          email: localStorage.getItem("email"),
         }),
       });
-
+      console.log(id)
+      console.log(formData)
       if (response.ok) {
-        // console.log("Post created successfully!");
+        console.log("Post updated successfully!");
         navigate("/");
       } else {
-        console.error("Failed to create post.");
+        console.error("Failed to update post.");
       }
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error updating post:", error);
     }
   };
 
@@ -66,9 +68,9 @@ function PostForm({userID }) {
       <section className="bg-white dark:bg-gray-900">
         <div className="py-8 lg:py-16 px-4 mx-auto max-w-screen-md">
           <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-center text-gray-900 dark:text-white">
-            글 쓰기
+            글 수정하기
           </h2>
-          <form action="http://192.168.240.43:8080/postformpage" method="post" className="space-y-8" onSubmit={handleSubmit}>
+          <form className="space-y-8" onSubmit={handleSubmit}>
             <div>
               <select
                 id="teamfield"
@@ -133,7 +135,7 @@ function PostForm({userID }) {
                 className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
                 type="submit"
               >
-                작성하기
+                수정하기
               </button>
             </div>
           </form>
@@ -143,4 +145,4 @@ function PostForm({userID }) {
   );
 }
 
-export default PostForm;
+export default PostEditForm;

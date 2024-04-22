@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import React, { useState, useEffect } from "react"; // useMemo를 사용하지 않으므로 제거
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 
-function Board({ }) {
+function Board() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -10,18 +10,26 @@ function Board({ }) {
   const [totalPages, setTotalPages] = useState(0); // 총 페이지 수
   const postsPerPage = 10; // 페이지 당 게시물 수
   const [isNavOpen, setIsNavOpen] = useState(false);
-
+  const navigate = useNavigate();
+  const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 구단 상태
+  const [storedUserId, setStoredUserId] = useState(""); // 저장된 사용자 ID
 
   const changeUrlParams = (key, value) => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set(key, value);
     setSearchParams(newSearchParams);
-  }
+  };
   
   // 로그인 상태 확인
   useEffect(() => {
     const storedLoggedIn = localStorage.getItem('isLoggedIn');
     setIsLoggedIn(storedLoggedIn === 'true');
+
+    // 로그인된 경우에만 storedUserId 설정
+    if (storedLoggedIn === 'true') {
+      const storedUserId = localStorage.getItem('id');
+      setStoredUserId(storedUserId);
+    }
   }, []);
 
   // 게시글 드롭다운 토글
@@ -29,12 +37,10 @@ function Board({ }) {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // 서버에서 현재 페이지에 해당하는 게시물 가져오기
-  const fetchPosts = async () => {
+  // 페이지 및 사이즈를 기반으로 게시물 가져오기
+  const fetchPostsByParams = async (url) => {
     try {
-      const response = await fetch(
-        `http://192.168.240.43:8080/api/posts?page=${currentPage -1}&size=${postsPerPage}`
-      );
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setPosts(data.content);
@@ -48,12 +54,64 @@ function Board({ }) {
     }
   };
 
+  // 서버에서 현재 페이지에 해당하는 게시물 가져오기
+  const fetchPosts = async () => {
+    let url;
+    if (selectedTeam) {
+      url = `http://192.168.240.43:8080/api/posts?page=${currentPage - 1}&size=${postsPerPage}&team=${selectedTeam}`;
+    } else {
+      url = `http://192.168.240.43:8080/api/posts?page=${currentPage - 1}&size=${postsPerPage}`;
+    }
+    await fetchPostsByParams(url);
+  };
+
+
+  // 전체 보기 핸들러
+  const handleSelectAll = async () => {
+    setSelectedTeam(""); // 선택된 구단 초기화
+    await fetchPostsByParams(`http://192.168.240.43:8080/api/posts`);
+  };
+
+  // 팀 선택 핸들러 수정
+  const handleSelectTeam = async (team) => {
+    setSelectedTeam(team);
+    await fetchPostsByParams(`http://192.168.240.43:8080/api/posts?team=${team}`);
+  };
+
   // 초기 렌더링 시 게시물 가져오기
   useEffect(() => {
     fetchPosts(currentPage);
   }, [currentPage]);
 
-  // 게시글 필터링 함수
+  // 이전 페이지로 이동
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // 다음 페이지로 이동
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // 페이지 변경 시 게시글 불러오기
+  useEffect(() => {
+    // 선택된 구단이 있을 경우 해당 구단의 게시글을 불러옴
+    if (selectedTeam) {
+      handleSelectTeam(selectedTeam);
+    } else {
+      fetchPosts();
+    }
+  }, [currentPage, selectedTeam]);
+  
+  const handleToggleNav = () => {
+    setIsNavOpen(!isNavOpen);
+  };
+
+  // 게시글 필터링 함수 (수정된 부분)
   const filterPosts = (criteria) => {
     changeUrlParams('sort', criteria);
     let sortedPosts;
@@ -73,7 +131,7 @@ function Board({ }) {
     setIsDropdownOpen(false);
   };
 
-  // 날짜 형식 바꾸기
+  // 날짜 형식 바꾸기 (수정된 부분)
   const formatDate = (dateString) => {
     // dateString을 Date 객체로 변환
     const date = new Date(dateString);
@@ -94,71 +152,50 @@ function Board({ }) {
     return formattedDate;
   };
 
-  // 이전 페이지로 이동
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+  // 게시글 수정
+  const handleEdit = (postId) => {
+    navigate(`/edit/${postId}`);
+  };
+
+  // 게시글 삭제
+  const handleDelete = async (postId, postUserId) => {
+    if (window.confirm("게시물을 삭제하시겠습니까?")) {
+      try {
+        // 로컬 스토리지에서 저장된 사용자 ID와 토큰 가져오기
+        const storedUserId = localStorage.getItem('id');
+        const token = localStorage.getItem('token');
+
+        // 저장된 사용자 ID와 게시물의 작성자 ID 비교
+        if (storedUserId == postUserId) {
+          const response = await fetch(`http://192.168.240.43:8080/api/posts/${postId}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}` // 토큰을 Authorization 헤더에 포함
+            }
+          });
+
+          if (response.ok) { // 게시물 삭제 성공 시 새로고침 또는 필요한 처리
+            alert("게시물이 삭제되었습니다."); 
+            await fetchPosts(); // 게시물 목록 다시 불러오기
+            window.location.reload();
+          } else {
+            throw new Error("게시물 삭제에 실패했습니다.");
+          }
+        } else {
+          throw new Error("로그인한 사용자의 게시물이 아닙니다.");
+        }
+      } catch (error) {
+        console.error("게시물 삭제 중 오류가 발생했습니다:", error); // 오류 처리
+        alert("게시물 삭제에 실패했습니다.");
+      }
     }
   };
 
-  // 다음 페이지로 이동
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  // 시작 페이지와 끝 페이지 계산
+  // 시작 페이지와 끝 페이지 계산 (수정된 부분)
   const pagesPerPage = 10; // 한 번에 보이는 페이지 수
   const lastPage = Math.ceil(posts.length / postsPerPage);
   const startPage = Math.floor((currentPage - 1) / pagesPerPage) * pagesPerPage + 1;
   const endPage = Math.min(startPage + pagesPerPage - 1, totalPages);
-
-  // // 부모 컴포넌트로 선택된 팀 정보 전달
-  const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 구단 상태
-
-  // 전체 보기 핸들러
-  const handleSelectAll = async () => {
-    try {
-      const response = await fetch(`http://192.168.240.43:8080/api/posts`);
-      if (response.ok) {
-        const data = await response.json();
-        setPosts(data.content);
-        setTotalPages(data.totalPages);
-        setSelectedTeam(""); // 선택된 팀 정보 초기화
-      } else {
-        throw new Error('게시글을 가져오는 데 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
-      // 오류 처리
-    }
-  };
-
-  
-  // 팀 선택 핸들러
-  const handleSelectTeam = async (team) => {
-    try {
-      const response = await fetch(`http://192.168.240.43:8080/api/posts?team=${team}`);
-      if (response.ok) {
-        const data = await response.json();
-        setPosts(data.content);
-        setTotalPages(data.totalPages);
-        setSelectedTeam(team);
-      } else {
-        throw new Error('게시글을 가져오는 데 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
-      // 오류 처리
-    }
-  };
-
-  
-  const handleToggleNav = () => {
-    setIsNavOpen(!isNavOpen);
-  };
-      
 
   return (
     <>
@@ -221,25 +258,6 @@ function Board({ }) {
               </div>
               {isLoggedIn ? (
                 <>
-                  {/* 검색 폼 */}
-                  <div className="w-full md:w-1/2">
-                    <form className="flex items-center">
-                      <label htmlFor="simple-search" className="sr-only">Search</label>
-                      <div className="relative w-full">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                          <svg aria-hidden="true" className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <input type="search" id="simple-search" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search" required="" />
-                        <button type="submit" class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-gray-700 rounded-e-lg border border-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-                          <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </form>
-                  </div>
                   <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                     {/* 글쓰기 버튼 */} 
                     <Link to="/postformpage">
@@ -290,6 +308,7 @@ function Board({ }) {
                     <th scope="col" className="px-4 py-3 text-center">작성자</th>
                     <th scope="col" className="px-4 py-3 text-center">조회수</th>
                     <th scope="col" className="px-4 py-3 text-center">날짜</th>
+                    <th scope="col" className="px-4 py-3 text-center"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -305,6 +324,24 @@ function Board({ }) {
                       <td className="px-4 py-3 text-center">{post.nickname}</td>
                       <td className="px-4 py-3 text-center">{post.views}</td>
                       <td className="px-4 py-3 text-center">{formatDate(post.createdate)}</td>
+
+                      {/* 로그인된 id와 게시글의 userid가 같으면 수정/삭제 가능 */}
+                      {storedUserId == post.userId && ( 
+                        <td className="px-2 py-1 text-center">
+                          <button 
+                            onClick={() => handleEdit(post.id)}
+                            className="mr-1 inline-flex items-center justify-center px-2 py-1 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                          >
+                            수정
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(post.id, post.userId)}
+                            className="mr-1 inline-flex items-center justify-center px-2 py-1 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                          >
+                            삭제
+                          </button>
+                        </td>
+                      )} 
                     </tr>
                   ))}
                 </tbody>

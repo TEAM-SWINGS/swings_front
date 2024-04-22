@@ -6,7 +6,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PostPage from './pages/PostPage';
 import PostFormPage from './pages/PostFormPage';
-
+import PostEditFormPage from './pages/PostEditFormPage';
 
 function App() {
   return (
@@ -17,6 +17,7 @@ function App() {
         <Route path='/signup' element={<SignupPage />} />
         <Route path='/postpage/:id' element={<PostPage />} />
         <Route path='/postformpage' element={<PostFormPage />} />
+        <Route path='/edit/:id' element={<PostEditFormPage />} />
       </Routes>
     </Router>
   );

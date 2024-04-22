@@ -8,7 +8,7 @@ function Login(props) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await fetch("http://192.168.240.43:8080/user/login", {
         method: "POST",
@@ -20,22 +20,31 @@ function Login(props) {
           password: password,
         }),
       });
-
+  
       if (response.ok) {
-        // 로그인 성공
-        localStorage.setItem('email', email);
-        localStorage.setItem('isLoggedIn', 'true');
-        navigate('/');
+        const data = await response.json();
+        console.log(data)
+        if (data.user) {
+          const { id, email } = data.user;
+          localStorage.setItem('email', email);
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('id', id);
+          navigate('/');
+        } else {
+          alert('서버 응답에 사용자 정보가 없습니다.');
+        }
       } else {
         // 로그인 실패
         alert('로그인에 실패했습니다. 이메일 주소와 비밀번호를 확인해주세요.');
       }
+      
     } catch (error) {
       // 네트워크 오류 등의 경우 처리
       console.error('로그인 요청 중 오류 발생:', error);
       alert('로그인 중 오류가 발생했습니다.');
     }
   };
+  
 
   return (
     <>
@@ -50,7 +59,6 @@ function Login(props) {
                 Login
               </h1>
               <form className="space-y-4 md:space-y-6" onSubmit={handleLogin}>
-              {/* <form className="space-y-4 md:space-y-6" action="http://192.168.240.43:8080/user/login" method="post"> */}
                 <div>
                   <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
                   <input type="email" name="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required="" />
