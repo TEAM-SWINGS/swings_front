@@ -3,14 +3,11 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 
 function Board() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const team = searchParams.get('team');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
   const [totalPages, setTotalPages] = useState(0); // 총 페이지 수
-  const [totalPosts, setTotalPosts] = useState(0); // 총 페이지 수
-
   const postsPerPage = 10; // 페이지 당 게시물 수
   const [isNavOpen, setIsNavOpen] = useState(false);
   const navigate = useNavigate();
@@ -43,15 +40,11 @@ function Board() {
   // 페이지 및 사이즈를 기반으로 게시물 가져오기
   const fetchPostsByParams = async (url) => {
     try {
-      const response = await fetch(
-        `http://192.168.240.43:8080/api/posts?page=${currentPage -1}&size=${postsPerPage}`
-      );
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
-        console.log(data)
         setPosts(data.content);
         setTotalPages(data.totalPages);
-        setTotalPosts(data.totalElements);
       } else {
         throw new Error("게시글을 가져오는 데 실패했습니다.");
       }
@@ -87,8 +80,8 @@ function Board() {
 
   // 초기 렌더링 시 게시물 가져오기
   useEffect(() => {
-    fetchPosts();
-  }, [currentPage, team]);
+    fetchPosts(currentPage);
+  }, [currentPage]);
 
   // 이전 페이지로 이동
   const prevPage = () => {
@@ -121,19 +114,19 @@ function Board() {
   // 게시글 필터링 함수 (수정된 부분)
   const filterPosts = (criteria) => {
     changeUrlParams('sort', criteria);
-    // let sortedPosts;
-    // // 조회수 내림차순 정렬
-    // if (criteria === 'views') {
-    //   sortedPosts = [...posts].sort((a, b) => b.views - a.views);
-    // // 작성일자 내림차순 정렬
-    // } else if (criteria === 'createdate') {
-    //   sortedPosts = [...posts].sort((a, b) => new Date(b.createdate) - new Date(a.createdate));
-    // // 기본값은 원래의 순서 유지
-    // } else {
-    //   sortedPosts = [...posts];
-    // }
-    // // 정렬된 게시글로 상태 업데이트
-    // setPosts(sortedPosts);
+    let sortedPosts;
+    // 조회수 내림차순 정렬
+    if (criteria === 'views') {
+      sortedPosts = [...posts].sort((a, b) => b.views - a.views);
+    // 작성일자 내림차순 정렬
+    } else if (criteria === 'createdate') {
+      sortedPosts = [...posts].sort((a, b) => new Date(b.createdate) - new Date(a.createdate));
+    // 기본값은 원래의 순서 유지
+    } else {
+      sortedPosts = [...posts];
+    }
+    // 정렬된 게시글로 상태 업데이트
+    setPosts(sortedPosts);
     // 드롭다운 닫기
     setIsDropdownOpen(false);
   };
@@ -203,52 +196,6 @@ function Board() {
   const lastPage = Math.ceil(posts.length / postsPerPage);
   const startPage = Math.floor((currentPage - 1) / pagesPerPage) * pagesPerPage + 1;
   const endPage = Math.min(startPage + pagesPerPage - 1, totalPages);
-
-  // // 부모 컴포넌트로 선택된 팀 정보 전달
-  const [selectedTeam, setSelectedTeam] = useState(""); // 선택된 구단 상태
-
-  // 전체 보기 핸들러
-  const handleSelectAll = async () => {
-    try {
-      const response = await fetch(`http://192.168.240.43:8080/api/posts`);
-      if (response.ok) {
-        const data = await response.json();
-        setPosts(data.content);
-        setTotalPages(data.totalPages);
-        setSelectedTeam(""); // 선택된 팀 정보 초기화
-      } else {
-        throw new Error('게시글을 가져오는 데 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
-      // 오류 처리
-    }
-  };
-
-  
-  // 팀 선택 핸들러
-  const handleSelectTeam = async (team) => {
-    try {
-      const response = await fetch(`http://192.168.240.43:8080/api/posts?team=${team}`);
-      if (response.ok) {
-        const data = await response.json();
-        setPosts(data.content);
-        setTotalPages(data.totalPages);
-        setSelectedTeam(team);
-      } else {
-        throw new Error('게시글을 가져오는 데 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('게시글을 가져오는 중 오류가 발생했습니다:', error);
-      // 오류 처리
-    }
-  };
-
-  
-  const handleToggleNav = () => {
-    setIsNavOpen(!isNavOpen);
-  };
-      
 
   return (
     <>
@@ -404,9 +351,9 @@ function Board() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4" aria-label="Table navigation">
                 <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
                     Showing
-                    <span className="font-semibold text-gray-900 dark:text-white">{(currentPage - 1) * postsPerPage + 1}-{currentPage * postsPerPage}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{(currentPage - 1) * postsPerPage + 1}-{Math.min(currentPage * postsPerPage, posts.length)}</span>
                     of
-                    <span className="font-semibold text-gray-900 dark:text-white">{totalPosts}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{totalPages}</span>
                 </span>
                 <ul className="inline-flex items-stretch -space-x-px">
                     <li>
