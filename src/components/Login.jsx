@@ -5,12 +5,13 @@ function Login(props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const authToken = "LoginAccessToken";
 
   const handleLogin = async (e) => {
     e.preventDefault();
   
     try {
-      const response = await fetch("http://localhost:8080/user/login", {
+      const response = await fetch("http://192.168.240.43:8080/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -27,12 +27,16 @@ function Header({ onSelectTeam}) {
           </Link>
           <div className="flex items-center lg:order-2">
             {isLoggedIn ? (
-              <Link
-                className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
-                onClick={() => { handleLogout(); window.location.reload(); }}
-                >
-                로그아웃
-              </Link>
+              <>
+                <Link
+                  className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+                  onClick={() => { handleLogout(); localStorage.clear(); window.location.reload(); }}
+                  >
+                  로그아웃
+                </Link>
+                <Link to='/changepwdpage'>비밀번호 변경
+                </Link>
+              </>
             ):(
               <Link
                 to="/login"
