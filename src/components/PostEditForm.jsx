@@ -22,7 +22,7 @@ function PostEditForm({ existingContent }) {
     const markdownContent = editorInstance.getMarkdown();
     
     try {
-      const response = await fetch(`http://192.168.240.43:8080/api/posts/edit/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/posts/edit/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

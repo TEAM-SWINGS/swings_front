@@ -10,7 +10,7 @@ function ChangePwd() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://192.168.240.43:8080/user/password", {
+      const response = await fetch("http://localhost:8080/user/password", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
