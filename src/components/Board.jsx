@@ -60,7 +60,7 @@ function Board({posts, totalPages, totalPosts, refetch}) {
 
         // 저장된 사용자 ID와 게시물의 작성자 ID 비교
         if (storedUserId == postUserId) {
-          const response = await fetch(`http://localhost:8080/api/posts/${postId}`, {
+          const response = await fetch(`http://192.168.240.43:8080/api/posts/${postId}`, {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${token}` // 토큰을 Authorization 헤더에 포함

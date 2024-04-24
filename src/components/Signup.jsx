@@ -12,7 +12,7 @@ function Signup(){
         const formData = new FormData(event.target);
 
         try {
-            const response = await fetch('http://localhost:8080/user/save', {
+            const response = await fetch('http://192.168.240.43:8080/user/save', {
                 method: 'POST',
                 body: formData
             });

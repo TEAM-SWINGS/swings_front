@@ -17,7 +17,7 @@ function MainPage() {
   
    // 페이지 및 사이즈를 기반으로 게시물 가져오기
   const fetchPosts = async () => {
-    let baseUrl = 'http://localhost:8080';
+    let baseUrl = 'http://192.168.240.43:8080';
     const paramsObj = {
       page,
       size,
@@ -38,12 +38,12 @@ function MainPage() {
         throw new Error("게시글을 가져오는 데 실패했습니다.");
       }
     } catch (error) {
-      console.error("게시글을 가져오는 중 오류가 발생했습니다:", error);
-      // 오류 처리
+      console.error("게시글을 가져오는 중 오류가 발생했습니다:", error);  // 오류 처리
     }
   };
 
   useEffect(() => {
+    console.log(searchParams.toString());
     fetchPosts();
   }, [searchParams]);
 

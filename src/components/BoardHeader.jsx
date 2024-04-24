@@ -20,6 +20,7 @@ function BoardHeader({isLoggedIn}) {
 
   // 게시글 필터링 함수 (수정된 부분)
   const filterPosts = (sort) => {
+    console.log(sort);
     changeUrlParams({
       'sort': sort
     });

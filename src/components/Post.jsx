@@ -8,13 +8,13 @@ function Post() {
     const fetchPost = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/postpage/${id}`
+          `http://192.168.240.43:8080/postpage/${id}`
         );
         const postData = await response.json();
         setPost(postData);
 
         // 게시글 데이터를 가져온 후 조회수 증가 요청을 보냄
-        await fetch(`http://localhost:8080/api/posts/views?id=${id}`, {
+        await fetch(`http://192.168.240.43:8080/api/posts/views?id=${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

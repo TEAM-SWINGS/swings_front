@@ -20,7 +20,7 @@ function PostForm({userID }) {
     const markdownContent = editorInstance.getMarkdown();
     
     try {
-      const response = await fetch("http://localhost:8080/api/posts/create", {
+      const response = await fetch("http://192.168.240.43:8080/api/posts/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +66,7 @@ function PostForm({userID }) {
         <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-center text-gray-900 dark:text-white">
           글 쓰기
         </h2>
-        <form action="http://localhost:8080/postformpage" method="post" className="space-y-8" onSubmit={handleSubmit}>
+        <form className="space-y-8" onSubmit={handleSubmit}>
           <div>
             <select
               id="teamfield"
