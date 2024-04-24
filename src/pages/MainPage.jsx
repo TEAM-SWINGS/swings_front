@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import BoardHeader from "../components/BoardHeader";
 import Board from "../components/Board";
-import BoardPagination from "../components/BoardPagination";
-import useUrlParams from "../shared/utils/useUrlParams";
 import { useSearchParams } from "react-router-dom";
 
 const size = 10;
@@ -12,10 +9,9 @@ function MainPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [totalPosts, setTotalPosts] = useState(0);
   const [totalPages, setTotalPages] = useState(0); // 총 페이지 수
-  const page = searchParams.get('page') || '1';
+  const page = searchParams.get('page') || '0';
   const sort = searchParams.get('sort') || 'createdate';
   const team = searchParams.get('team') || '';
-
 
   const [posts, setPosts] = useState([]);
   
@@ -30,6 +26,7 @@ function MainPage() {
     }
     const urlParams = new URLSearchParams(paramsObj);
     const fetchUrl = `${baseUrl}/api/posts?${urlParams.toString()}`;
+
     try {
       const response = await fetch(fetchUrl);
       if (response.ok) {
@@ -49,8 +46,6 @@ function MainPage() {
   useEffect(() => {
     fetchPosts();
   }, [searchParams]);
-
-
 
   return (
     <>

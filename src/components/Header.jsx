@@ -13,9 +13,9 @@ function Header({ onSelectTeam}) {
 
   // 로그아웃 핸들러
   const handleLogout = () => {
-  localStorage.removeItem('isLoggedIn');
-  setIsLoggedIn(false);
-  navigate("/");
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+    navigate("/");
   };
 
   return (

@@ -12,8 +12,6 @@ function Board({posts, totalPages, totalPosts, refetch}) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [storedUserId, setStoredUserId] = useState(""); // 저장된 사용자 ID
 
-
-  
   // 로그인 상태 확인
   useEffect(() => {
     const storedLoggedIn = localStorage.getItem('isLoggedIn');
@@ -25,10 +23,7 @@ function Board({posts, totalPages, totalPosts, refetch}) {
       setStoredUserId(storedUserId);
     }
   }, []);
-
   
- 
-
   // 날짜 형식 바꾸기 (수정된 부분)
   const formatDate = (dateString) => {
     // dateString을 Date 객체로 변환
@@ -89,69 +84,64 @@ function Board({posts, totalPages, totalPosts, refetch}) {
     }
   };
 
-
-
-
   return (
-    <>
-      <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
-        <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
-          <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-            <BoardHeader isLoggedIn={isLoggedIn}/>
-            {/* 게시판 헤더 및 목록 */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                  <tr>
-                    <th scope="col" className="px-4 py-3 text-center">구단명</th>
-                    <th scope="col" className="px-4 py-3 text-center">제목</th>
-                    <th scope="col" className="px-4 py-3 text-center">작성자</th>
-                    <th scope="col" className="px-4 py-3 text-center">조회수</th>
-                    <th scope="col" className="px-4 py-3 text-center">날짜</th>
-                    <th scope="col" className="px-4 py-3 text-center"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* 선택된 팀의 게시물 렌더링 */}
-                  {posts.map((post) => (
-                    <tr key={post.id} className="border-b dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white text-center">
-                        <Link to={`/postpage/${post.id}`}>{post.teamfield}</Link>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Link to={`/postpage/${post.id}`}>{post.title}</Link>
-                      </td>
-                      <td className="px-4 py-3 text-center">{post.nickname}</td>
-                      <td className="px-4 py-3 text-center">{post.views}</td>
-                      <td className="px-4 py-3 text-center">{formatDate(post.createdate)}</td>
+    <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
+      <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
+        <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
+          <BoardHeader isLoggedIn={isLoggedIn}/>
+          {/* 게시판 헤더 및 목록 */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                  <th scope="col" className="px-4 py-3 text-center">구단명</th>
+                  <th scope="col" className="px-4 py-3 text-center">제목</th>
+                  <th scope="col" className="px-4 py-3 text-center">작성자</th>
+                  <th scope="col" className="px-4 py-3 text-center">조회수</th>
+                  <th scope="col" className="px-4 py-3 text-center">날짜</th>
+                  <th scope="col" className="px-4 py-3 text-center"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* 선택된 팀의 게시물 렌더링 */}
+                {posts.map((post) => (
+                  <tr key={post.id} className="border-b dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white text-center">
+                      <Link to={`/postpage/${post.id}`}>{post.teamfield}</Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link to={`/postpage/${post.id}`}>{post.title}</Link>
+                    </td>
+                    <td className="px-4 py-3 text-center">{post.nickname}</td>
+                    <td className="px-4 py-3 text-center">{post.views}</td>
+                    <td className="px-4 py-3 text-center">{formatDate(post.createdate)}</td>
 
-                      {/* 로그인된 id와 게시글의 userid가 같으면 수정/삭제 가능 */}
-                      {storedUserId == post.userId && ( 
-                        <td className="px-2 py-1 text-center">
-                          <button 
-                            onClick={() => handleEdit(post.id)}
-                            className="mr-1 inline-flex items-center justify-center px-2 py-1 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                          >
-                            수정
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(post.id, post.userId)}
-                            className="mr-1 inline-flex items-center justify-center px-2 py-1 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                          >
-                            삭제
-                          </button>
-                        </td>
-                      )} 
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <BoardPagination  posts={posts} totalPages={totalPages} totalPosts={totalPosts} />
+                    {/* 로그인된 id와 게시글의 userid가 같으면 수정/삭제 가능 */}
+                    {storedUserId == post.userId && ( 
+                      <td className="px-2 py-1 text-center">
+                        <button 
+                          onClick={() => handleEdit(post.id)}
+                          className="mr-1 inline-flex items-center justify-center px-2 py-1 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                        >
+                          수정
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(post.id, post.userId)}
+                          className="mr-1 inline-flex items-center justify-center px-2 py-1 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                        >
+                          삭제
+                        </button>
+                      </td>
+                    )} 
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+          <BoardPagination  posts={posts} totalPages={totalPages} totalPosts={totalPosts} />
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }
 

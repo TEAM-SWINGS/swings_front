@@ -1,6 +1,5 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes} from "react-router-dom"
-
 import MainPage from './pages/MainPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -20,7 +19,6 @@ function App() {
         <Route path='/postpage/:id' element={<PostPage />} />
         <Route path='/postformpage' element={<PostFormPage />} />
         <Route path='/edit/:id' element={<PostEditFormPage />} />
-      
       </Routes>
     </Router>
   );
