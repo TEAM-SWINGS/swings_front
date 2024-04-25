@@ -17,7 +17,7 @@ function MainPage() {
   
    // 페이지 및 사이즈를 기반으로 게시물 가져오기
   const fetchPosts = async () => {
-    let baseUrl = 'http://192.168.240.43:8080';
+    let baseUrl = 'http://localhost:8080';
     const paramsObj = {
       page,
       size,
